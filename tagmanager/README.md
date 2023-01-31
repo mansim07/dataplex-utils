@@ -107,7 +107,7 @@ A centralized team should be responsible for owning and maintainng this reposito
     ```
 
 - Step 3: Run the command to create a tag on Dataplex entity  
-    - Option 1: Local-mode 
+    - Option 1: Local-mode(TBD) 
         ```
         mvn exec:java -Dexec.mainClass=test.Main -Dexec.args="arg1 arg2 arg3" 
         ```
@@ -141,6 +141,72 @@ A centralized team should be responsible for owning and maintainng this reposito
 
 
 ## Creating the Data Product Quality Tag 
+- Step 1: Create the "data_product_quality" tag template
+
+    Run the below script to create the data_product_information tag template 
+    ```
+    java -cp target/tagmanager-1.0-SNAPSHOT.jar  com.google.cloud.dataplex.setup.CreateTagTemplates <<project-name>> <<location>> data_product_quality
+    ```
+
+- Step 2: Prepare your input yaml file. Replace the dq_report_config with your dq_results table where you capture the Data Quality result
+
+    ```
+    vim data-quality-tag.yaml 
+    ```
+
+    ```
+    dq_report_config:
+        project_id: "<your-project-id>"
+        dataset_id: "<your-dq-dataset-id>"
+        table_id: "dq_results"
+    quality_score: derived
+    dq_dashboard: "<a href=\"https://dataproductdocumentation/core_customers.html\">Link to Data Quality Dashboard</a>"
+    timeliness_score : derived
+    correctness_score : derived
+    integrity_score : derived
+    conformity_score : derived
+    completeness_score : derived
+    uniqueness_score : derived
+    accuracy_score : derived
+    last_modified_by : derived
+    last_modified_date : derived
+    related_data_product : derived
+    last_profiling_date: derived
+    ```
+
+    ```
+    gsutil cp ~/data-quality-tag.yaml gs://${PROJECT_ID}_dataplex_temp/
+    ```
+
+- Step 3: Run the command to create a tag on Dataplex entity  
+ 
+    - Option1:  Dataplex custom task 
+    ```
+     EXPORT PROJECT_ID="your-project-id"
+    EXPORT LOCATION="location"
+    EXPORT VPC_NETWORK="projects/${PROJECT_ID}/regions/${LOCATION}/subnetworks/subnet-name"
+    EXPORT SERVICE_ACCOUNT="customer-sa@${PROJECT_ID}.iam.gserviceaccount.com"
+    EXPORT INPUT_YAML_PATH="gs://${PROJECT_ID}_dataplex_temp"
+    EXPORT INPUT_YAML_FILENAME="data-quality-tag.yaml"
+    EXPORT JAR_FILE="<<gs-path-to tagmanager-1.0-SNAPSHOT.jar>>"
+    EXPORT LAKE_ID="your-lake-name"
+    EXPORT ZONE_ID="your-zone-id"
+    EXPORT ENTITY_ID="your-entity-id"
+        
+
+    gcloud dataplex tasks create sample-dq-tag-job \
+    --project=${PROJECT_ID} \
+    --location=${LOCATION} \
+    --vpc-sub-network-name=${VPC_NETWORK} \
+    --lake=${LAKE_ID} \
+    --trigger-type=ON_DEMAND \
+    --execution-service-account=${SERVICE_ACCOUNT} \
+    --spark-main-class="com.google.cloud.dataplex.templates.dataquality.DataProductQuality" \
+    --spark-file-uris="${INPUT_YAML_PATH}/${INPUT_YAML_FILENAME}" \
+    --container-image-java-jars="${JAR_FILE}" \
+    --execution-args=^::^TASK_ARGS="--tag_template_id=projects/${PROJECT_ID}/locations/${LOCATION}/tagTemplates/data_product_quality, --project_id=${PROJECT_ID},--location=${LOCATION},--lake_id=${LAKE_ID},--zone_id=${ZONE_ID},--entity_id=${ENTITY_ID},--input_file=${INPUT_YAML_FILENAME}"
+        ```
+
 
 ## Creating the Data Product Classification Tag 
 
