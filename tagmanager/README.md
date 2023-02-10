@@ -1,5 +1,5 @@
 # Sample Tags and Tag templates 
-This repository contains a source code that automate the metadata management process in the Data as a Product lifecycle for Dataplex managed data assets. The utulity can be run in stand-alone more as well as orchestrated using Dataplex's custom tasks utility, which is based on the Sparkservelss service and can be readily customized by developers.
+This repository contains a source code that automate the metadata management process in the Data as a Product lifecycle for Dataplex managed data assets. The utility can be run in stand-alone more as well as orchestrated using Dataplex's custom tasks utility, which is based on the Spark serverless service and can be readily customized by developers.
 
 With this set of automation code, you'll be able to build data-as-a-products and annotate them at scale which is a primary challenge. The tool now supports automated annotations for the following:
 
@@ -182,7 +182,7 @@ A centralized team should be responsible for owning and maintainng this reposito
  
     - Option1:  Dataplex custom task 
     ```
-     EXPORT PROJECT_ID="your-project-id"
+    EXPORT PROJECT_ID="your-project-id"
     EXPORT LOCATION="location"
     EXPORT VPC_NETWORK="projects/${PROJECT_ID}/regions/${LOCATION}/subnetworks/subnet-name"
     EXPORT SERVICE_ACCOUNT="customer-sa@${PROJECT_ID}.iam.gserviceaccount.com"
